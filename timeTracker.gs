@@ -7,6 +7,8 @@ function getActiveSheet() {
 }
 
 function autoSort(sheet, columnIndex) {
+  // * @author Mike Branski (@mikebranski)
+  // * @link https://gist.github.com/mikebranski/285b60aa5ec3da8638e5
   // Get the entire set of data for this sheet.
   var range = sheet.getDataRange();
 
@@ -45,6 +47,11 @@ function now() {
 }
 
 function validatePunchIn() {
+  var firstPunchIn = getActiveSheet().getRange('A2').isBlank();
+  if (firstPunchIn) {
+    return
+  }
+  
   var alreadyPunchedIn = getActiveSheet().getRange(PUNCH_OUT_CELL).isBlank();
   if (alreadyPunchedIn) {
     throw ('You must punch out before you can punch in: Cell ' + PUNCH_OUT_CELL + ' is empty.');
