@@ -1,3 +1,4 @@
+var USER = 'Espen';
 var PUNCH_OUT_ROW = NUMBER_OF_HEADER_ROWS + 1;
 var PUNCH_OUT_CELL = 'C2';
 var HOURS_CELL = 'D2';
@@ -75,7 +76,7 @@ function calculateHours() {
 function punchIn () {
   validatePunchIn();
   var row = getNextRow();
-  setValue('A' + row, 'Espen');
+  setValue('A' + row, USER);
   setValue('B' + row, now());
   autoSort(getActiveSheet(), 2);
   
@@ -87,4 +88,3 @@ function punchOut() {
   calculateHours();
   autoSort(getActiveSheet(), 4);
 }
-
