@@ -1,7 +1,19 @@
+// The numeric index of the column you wish to keep auto-sorted. A = 1, B = 2,
+// and so on.
+var SORT_COLUMN_INDEX = 2;
+// Whether to sort the data in ascending or descending order.
+var ASCENDING = false;
+// If you have header rows in your sheet, specify how many to exclude them from
+// the sort.
+var NUMBER_OF_HEADER_ROWS = 1;
+
 var USER = 'Espen';
 var PUNCH_OUT_ROW = NUMBER_OF_HEADER_ROWS + 1;
 var PUNCH_OUT_CELL = 'C2';
 var HOURS_CELL = 'D2';
+var WORKDAY_CELL = 'F2';
+var COMPANY_CELL = 'G2';
+var YEAR_CELL = 'H2';
 
 function getActiveSheet() {
   return SpreadsheetApp.getActiveSpreadsheet();
@@ -12,6 +24,7 @@ function autoSort(sheet, columnIndex) {
   // * @link https://gist.github.com/mikebranski/285b60aa5ec3da8638e5
   // Get the entire set of data for this sheet.
   var range = sheet.getDataRange();
+  var name = sheet.getName();
 
   // Then, if there are any header rows, offset our range to remove them from
   // it; otherwise, they will end up being sorted as well.
@@ -22,12 +35,16 @@ function autoSort(sheet, columnIndex) {
     // wanted support for those as well.
     range = range.offset(NUMBER_OF_HEADER_ROWS, 0);
   }
-
+  console.log("testlog");
+  console.log(name);
   // Perform the actual sort.
-  range.sort( {
-    column: columnIndex,
-    ascending: ASCENDING
-  } );
+  if (name === 'Timetracker Horus') {
+    range.sort( {
+      column: columnIndex,
+      ascending: ASCENDING
+    });
+  }
+  console.log('Autosort done')
 }
 
 function setValue(cellName, value) {
@@ -42,9 +59,8 @@ function getNextRow() {
   return getActiveSheet().getLastRow() + 1;
 }
 
-function now() {
-  var now = new Date();
-  return Utilities.formatDate(now, 'Europe/Oslo', 'yyyy/MM/dd HH:mm')
+function formatDate(date) {
+  return Utilities.formatDate(date, 'Europe/Oslo', 'yyyy/MM/dd HH:mm')
 }
 
 function validatePunchIn() {
@@ -69,22 +85,25 @@ function checkIfCanPunchOut() {
 function calculateHours() {
   var punchedIn = new Date(getValue('B2'));
   var punchedOut = new Date(getValue(PUNCH_OUT_CELL));
-  var hours = (punchedOut - punchedIn ) / (1000 * 3600);
-  setValue(HOURS_CELL, hours.toFixed(2));
+  return (punchedOut - punchedIn ) / (1000 * 3600);
 }
 
 function punchIn () {
+  console.log('starting punch in')
   validatePunchIn();
   var row = getNextRow();
   setValue('A' + row, USER);
-  setValue('B' + row, now());
+  setValue('B' + row, formatDate(new Date()));
   autoSort(getActiveSheet(), 2);
-  
 }
 
 function punchOut() {
   checkIfCanPunchOut();
-  setValue(PUNCH_OUT_CELL, now());
-  calculateHours();
-  autoSort(getActiveSheet(), 4);
+  var now = new Date();
+  setValue(PUNCH_OUT_CELL, formatDate(now));
+  var hours = calculateHours();
+  setValue(HOURS_CELL, hours.toFixed(2));
+  setValue(WORKDAY_CELL, hours > 4)
+  setValue(COMPANY_CELL, 'Horus')
+  setValue(YEAR_CELL, now.getFullYear())
 }
